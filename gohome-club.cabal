@@ -1,0 +1,54 @@
+name:                gohome-club
+version:             0.1.0.0
+synopsis:            gohome.club app, i guess
+description:         Please see README.md
+homepage:            https://github.com/justinwoo/gohome-club#readme
+license:             BSD3
+license-file:        LICENSE
+author:              Justin Woo
+maintainer:          example@example.com
+copyright:           2016 Justin Woo
+category:            Web
+build-type:          Simple
+-- extra-source-files:
+cabal-version:       >=1.10
+
+executable gohome-club-exe
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
+                     , scotty
+                     , clay
+                     , text
+                     , blaze-html
+                     , blaze-markup
+                     , wai-extra
+                     , wai-middleware-static
+                     , directory
+                     , bytestring
+                     , transformers
+                     , aeson
+                     , lens
+                     , haxl
+                     , hashable
+                     , http-conduit
+                     , template-haskell
+  other-modules:       Models.Weather
+                     , Models.TH
+                     , Views.Index
+                     , Views.Layout
+  default-language:    Haskell2010
+
+test-suite gohome-club-test
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+  build-depends:       base
+                     , gohome-club
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
+
+source-repository head
+  type:     git
+  location: https://github.com/justinwoo/gohome-club

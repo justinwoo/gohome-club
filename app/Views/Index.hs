@@ -7,15 +7,47 @@ import           Prelude                       hiding (div, span)
 
 import           Control.Lens                  hiding (index)
 import           Text.Blaze.Html.Renderer.Text (renderHtml)
-import           Text.Blaze.Html5              hiding (html)
+import           Text.Blaze.Html5              hiding (html, style)
 import           Text.Blaze.Html5.Attributes   hiding (item, span)
 import           Web.Scotty                    (ActionM, html)
 
 import           Models.Weather
 import           Views.Layout                  (layout)
 
-index :: Weather -> ActionM ()
-index weather = html . renderHtml $ layout "This page was found" $ do
+weatherHtml :: Weather -> Html
+weatherHtml weather = do
+  let channel' = weather ^. queryL . resultsL . channelL
+  let location' = channel' ^. locationL
+  let astronomy' = channel' ^. astronomyL
+  let condition' = channel' ^. itemL . conditionL
+  let wind' = channel' ^. windL
+  div ! style "display: inline-block" $ do
+    h2 $ toHtml $ "Weather information for " ++ location' ^. cityL ++ ", " ++ location' ^. countryL
+    ul $ do
+      li $ toHtml $ "Current temperature: " ++ condition' ^. conditiontempL
+      li $ toHtml $ "Current condition: " ++ condition' ^. conditiontextL
+      li $ toHtml $ "Sunrise: " ++ astronomy' ^. sunriseL
+      li $ toHtml $ "Sunset: " ++ astronomy' ^. sunsetL
+      li $ toHtml $ "Wind chill: " ++ wind' ^. chillL
+      li $ toHtml $ "Wind direction: " ++ wind' ^. directionL
+      li $ toHtml $ "Wind speed: " ++ wind' ^. speedL
+    h2 "10-Day Forecast:"
+    ul $ mconcat $
+      (\x ->
+        li $ do
+          toHtml $ x ^. forecastdayL
+          text " "
+          toHtml $ x ^. forecastdateL
+          text ": "
+          toHtml $ x ^. forecasthighL
+          text ", "
+          toHtml $ x ^. forecastlowL
+          text " - "
+          toHtml $ x ^. forecasttextL
+        ) <$> channel' ^. itemL . forecastL
+
+index :: [Weather] -> ActionM ()
+index xs = html . renderHtml $ layout "This page was found" $ do
   h1 "The page was found"
   text "The page you were looking for might be here, had its name changed, or is temporarily unavailable."
   hr
@@ -55,34 +87,8 @@ index weather = html . renderHtml $ layout "This page was found" $ do
   p "Page contents continue below."
   hr
 
-  let channel' = weather ^. queryL . resultsL . channelL
-  let location' = channel' ^. locationL
-  let astronomy' = channel' ^. astronomyL
-  let condition' = channel' ^. itemL . conditionL
-  let wind' = channel' ^. windL
-  h2 $ toHtml $ "Weather information for " ++ location' ^. cityL ++ ", " ++ location' ^. countryL
-  ul $ do
-    li $ toHtml $ "Current temperature: " ++ condition' ^. conditiontempL
-    li $ toHtml $ "Current condition: " ++ condition' ^. conditiontextL
-    li $ toHtml $ "Sunrise: " ++ astronomy' ^. sunriseL
-    li $ toHtml $ "Sunset: " ++ astronomy' ^. sunsetL
-    li $ toHtml $ "Wind chill: " ++ wind' ^. chillL
-    li $ toHtml $ "Wind direction: " ++ wind' ^. directionL
-    li $ toHtml $ "Wind speed: " ++ wind' ^. speedL
-  h2 $ "10-Day Forecast:"
-  ul $ mconcat $
-    (\x ->
-       li $ do
-        toHtml $ x ^. forecastdayL
-        text " "
-        toHtml $ x ^. forecastdateL
-        text ": "
-        toHtml $ x ^. forecasthighL
-        text ", "
-        toHtml $ x ^. forecastlowL
-        text " - "
-        toHtml $ x ^. forecasttextL
-      ) <$> channel' ^. itemL . forecastL
+  span $ mconcat $ weatherHtml <$> xs
+
   hr
   h2 "Links to author on other websites"
   p $

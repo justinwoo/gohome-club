@@ -10,6 +10,9 @@ import           Web.Scotty
 import           Models.Weather
 import           Views.Index            (index)
 
+foldA :: Foldable f => f [Weather] -> [Weather]
+foldA = foldl mappend []
+
 main :: IO ()
 main = do
   myEnv <- initEnv (stateSet WeatherDataState stateEmpty) ()
@@ -18,7 +21,8 @@ main = do
   scotty port $
     get "/" $ do
       weathers <- liftIO $ runHaxl myEnv $
-        (++)
-        <$> (pure <$> getWeather "Helsinki, FI")
-        <*> (pure <$> getWeather "Berlin, DE")
+        (\a b c -> [a, b, c])
+        <$> getWeather "Helsinki, FI"
+        <*> getWeather "Berlin, DE"
+        <*> getWeather "Munich, DE"
       index weathers

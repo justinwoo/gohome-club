@@ -21,7 +21,7 @@ weatherHtml weather = do
   let astronomy' = channel' ^. astronomyL
   let condition' = channel' ^. itemL . conditionL
   let wind' = channel' ^. windL
-  div ! style "display: inline-block" $ do
+  td ! style "vertical-align: text-top" $ do
     h2 $ toHtml $ "Weather information for " ++ location' ^. cityL ++ ", " ++ location' ^. countryL
     ul $ do
       li $ toHtml $ "Current temperature: " ++ condition' ^. conditiontempL
@@ -87,7 +87,7 @@ index xs = html . renderHtml $ layout "This page was found" $ do
   p "Page contents continue below."
   hr
 
-  span $ mconcat $ weatherHtml <$> xs
+  table $ tbody $ tr $ mconcat $ weatherHtml <$> xs
 
   hr
   h2 "Links to author on other websites"

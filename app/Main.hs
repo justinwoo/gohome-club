@@ -21,8 +21,7 @@ main = do
   scotty port $
     get "/" $ do
       weathers <- liftIO $ runHaxl myEnv $
-        (\a b c -> [a, b, c])
+        (\a b -> [a, b])
         <$> getWeather "Helsinki, FI"
-        <*> getWeather "Berlin, DE"
         <*> getWeather "Munich, DE"
       index weathers
